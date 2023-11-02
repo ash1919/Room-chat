@@ -1,6 +1,9 @@
 import React from "react";
+import io from "socket.io-client";
 
 const Chat = () => {
+  const socket = io("http://localhost:4000");
+
   return (
     <div class="chat-container">
       <header class="chat-header">
