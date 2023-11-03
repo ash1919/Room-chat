@@ -25,16 +25,28 @@ app.get("/", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  console.log(socket.id);
-  console.log("client connected");
+  console.log("Connection done");
+  //welcome current users
+  socket.emit("message", "Welcome to Chat Cord");
 
+  //Broadcast when user connects
+  socket.broadcast.emit("message", "A User has joined the chat");
+
+  //client disconnects
   socket.on("disconnect", () => {
-    console.log("client disconnected");
+    io.emit("message", "A User has left the chat");
   });
 
-  socket.on("chat message", (msg) => {
-    console.log("message: " + JSON.stringify(msg));
-  });
+  // console.log(socket.id);
+  // console.log("client connected");
+
+  // socket.on("disconnect", () => {
+  //   console.log("client disconnected");
+  // });
+
+  // socket.on("chat message", (msg) => {
+  //   console.log("message: " + JSON.stringify(msg));
+  // });
 });
 
 server.listen(port, () => {
