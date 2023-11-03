@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 
 // const socket = io("http://localhost:4000");
@@ -6,8 +6,9 @@ import io from "socket.io-client";
 const Chat = () => {
   const [welcomeMessage, setWelcomeMessage] = useState([]);
   const [message, setMessage] = useState("");
-  const [messageReceived, setMessageReceived] = useState("");
-  const [socket, setSocket] = useState();
+  const [messageReceived, setMessageReceived] = useState([]);
+  const [socket, setSocket] = useState("");
+  const chatMessagesRef = useRef();
 
   const sendMessage = (event) => {
     event.preventDefault();
@@ -26,10 +27,25 @@ const Chat = () => {
   useEffect(() => {
     if (!socket) return;
 
+    socket.on("message", (data) => {
+      setMessageReceived((prevMessages) => [...prevMessages, data]);
+      setTimeout(() => {
+        chatMessagesRef.current.scrollTop =
+          chatMessagesRef.current.scrollHeight;
+      }, 0);
+    });
+
     socket.on("receive_message", (data) => {
-      setMessageReceived(data.message);
+      setMessageReceived((prevMessages) => [...prevMessages, data.message]);
+      setTimeout(() => {
+        chatMessagesRef.current.scrollTop =
+          chatMessagesRef.current.scrollHeight;
+      }, 0);
     });
   }, [socket]);
+
+  console.log("state", messageReceived);
+  const outputMessage = () => {};
 
   return (
     <div className="chat-container">
@@ -52,14 +68,11 @@ const Chat = () => {
           </h3>
           <ul id="users">
             <li>Brad</li>
-            <li>John</li>
             <li>Mary</li>
-            <li>Paul</li>
-            <li>Mike</li>
           </ul>
         </div>
-        <div className="chat-messages">
-          <div className="message">
+        <div ref={chatMessagesRef} className="chat-messages">
+          {/* <div className="message">
             <p className="meta">
               Brad <span>9:12pm</span>
             </p>
@@ -67,13 +80,16 @@ const Chat = () => {
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Eligendi,
               repudiandae.
             </p>
-          </div>
-          <div className="message">
-            <p className="meta">
-              Mary <span>9:15pm</span>
-            </p>
-            <p className="text">{messageReceived}</p>
-          </div>
+          </div> */}
+          {messageReceived &&
+            messageReceived?.map((msg, index) => (
+              <div className="message" key={`${index}${msg}`}>
+                <p className="meta">
+                  Mary <span>9:15pm</span>
+                </p>
+                <p className="text">{msg}</p>
+              </div>
+            ))}
         </div>
       </main>
       <div className="chat-form-container">
