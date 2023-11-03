@@ -9,6 +9,12 @@ const Chat = () => {
   const [messageReceived, setMessageReceived] = useState("");
   const [socket, setSocket] = useState();
 
+  const sendMessage = (event) => {
+    event.preventDefault();
+    socket.emit("send_message", { message });
+    setMessage("");
+  };
+
   useEffect(() => {
     const socket = io("http://localhost:4000");
     setSocket(socket);
@@ -19,17 +25,11 @@ const Chat = () => {
 
   useEffect(() => {
     if (!socket) return;
-    socket.on("message", (message) => {
-      console.log(message);
+
+    socket.on("receive_message", (data) => {
+      setMessageReceived(data.message);
     });
   }, [socket]);
-
-  const sendMessage = (event) => {
-    event.preventDefault();
-    console.log("hi", message);
-
-    socket.emit("send_message", { message });
-  };
 
   return (
     <div className="chat-container">
@@ -72,10 +72,7 @@ const Chat = () => {
             <p className="meta">
               Mary <span>9:15pm</span>
             </p>
-            <p className="text">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Eligendi,
-              repudiandae.
-            </p>
+            <p className="text">{messageReceived}</p>
           </div>
         </div>
       </main>
@@ -89,7 +86,6 @@ const Chat = () => {
             required
             autoComplete="off"
             onChange={(event) => {
-              event.preventDefault();
               setMessage(event.target.value);
             }}
           />

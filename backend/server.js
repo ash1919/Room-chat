@@ -32,21 +32,15 @@ io.on("connection", (socket) => {
   //Broadcast when user connects
   socket.broadcast.emit("message", "A User has joined the chat");
 
+  //handle client messages
+  socket.on("send_message", (data) => {
+    socket.broadcast.emit("receive_message", data);
+  });
+
   //client disconnects
   socket.on("disconnect", () => {
     io.emit("message", "A User has left the chat");
   });
-
-  // console.log(socket.id);
-  // console.log("client connected");
-
-  // socket.on("disconnect", () => {
-  //   console.log("client disconnected");
-  // });
-
-  // socket.on("chat message", (msg) => {
-  //   console.log("message: " + JSON.stringify(msg));
-  // });
 });
 
 server.listen(port, () => {
