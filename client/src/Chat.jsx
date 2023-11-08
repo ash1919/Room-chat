@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
+import { useSearchParams } from "react-router-dom";
 
 // const socket = io("http://localhost:4000");
 
@@ -7,22 +8,32 @@ const Chat = () => {
   const [welcomeMessage, setWelcomeMessage] = useState([]);
   const [message, setMessage] = useState("");
   const [messageReceived, setMessageReceived] = useState([]);
+  const [query, setQuery] = useState("");
   const [socket, setSocket] = useState("");
   const chatMessagesRef = useRef();
+  const chatInputRef = useRef();
+  const [searchParams] = useSearchParams();
 
   const sendMessage = (event) => {
     event.preventDefault();
-    socket.emit("send_message", { message });
+    socket.emit("send_message", message);
     setMessage("");
   };
 
   useEffect(() => {
     const socket = io("http://localhost:4000");
     setSocket(socket);
+
     return () => {
       socket.disconnect();
     };
   }, []);
+
+  useEffect(() => {
+    const currentParams = Object.fromEntries([...searchParams]);
+    // get new values on change
+    setQuery({ userName: currentParams.username, room: currentParams.room });
+  }, [searchParams]);
 
   useEffect(() => {
     if (!socket) return;
@@ -36,16 +47,13 @@ const Chat = () => {
     });
 
     socket.on("receive_message", (data) => {
-      setMessageReceived((prevMessages) => [...prevMessages, data.message]);
+      setMessageReceived((prevMessages) => [...prevMessages, data]);
       setTimeout(() => {
         chatMessagesRef.current.scrollTop =
           chatMessagesRef.current.scrollHeight;
       }, 0);
     });
   }, [socket]);
-
-  console.log("state", messageReceived);
-  const outputMessage = () => {};
 
   return (
     <div className="chat-container">
@@ -85,9 +93,9 @@ const Chat = () => {
             messageReceived?.map((msg, index) => (
               <div className="message" key={`${index}${msg}`}>
                 <p className="meta">
-                  Mary <span>9:15pm</span>
+                  {query.userName} <span>{msg.time}</span>
                 </p>
-                <p className="text">{msg}</p>
+                <p className="text">{msg.text}</p>
               </div>
             ))}
         </div>
@@ -95,6 +103,7 @@ const Chat = () => {
       <div className="chat-form-container">
         <form onSubmit={(event) => sendMessage(event)} id="chat-form">
           <input
+            ref={chatInputRef}
             id="msg"
             type="text"
             value={message}
