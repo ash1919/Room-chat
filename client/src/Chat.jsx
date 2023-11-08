@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router-dom";
 // const socket = io("http://localhost:4000");
 
 const Chat = () => {
-  const [welcomeMessage, setWelcomeMessage] = useState([]);
+  const [roomDetails, setRoomDetails] = useState({});
   const [message, setMessage] = useState("");
   const [messageReceived, setMessageReceived] = useState([]);
   const [query, setQuery] = useState("");
@@ -32,12 +32,21 @@ const Chat = () => {
   useEffect(() => {
     const currentParams = Object.fromEntries([...searchParams]);
     // get new values on change
-    setQuery({ userName: currentParams.username, room: currentParams.room });
+    setQuery({ username: currentParams.username, room: currentParams.room });
   }, [searchParams]);
 
   useEffect(() => {
     if (!socket) return;
+    //join chatroom
+    socket.emit("joinRoom", query);
 
+    //get room users
+    socket.on("room_users", ({ room, users }) => {
+      setRoomDetails({
+        room: room,
+        users: users,
+      });
+    });
     socket.on("message", (data) => {
       setMessageReceived((prevMessages) => [...prevMessages, data]);
       setTimeout(() => {
@@ -55,6 +64,7 @@ const Chat = () => {
     });
   }, [socket]);
 
+  console.log(roomDetails);
   return (
     <div className="chat-container">
       <header className="chat-header">
@@ -70,30 +80,22 @@ const Chat = () => {
           <h3>
             <i className="fas fa-comments"></i> Room Name:
           </h3>
-          <h2 id="room-name">JavaScript</h2>
+          <h2 id="room-name">{roomDetails.room}</h2>
           <h3>
             <i className="fas fa-users"></i> Users
           </h3>
           <ul id="users">
-            <li>Brad</li>
-            <li>Mary</li>
+            {roomDetails?.users?.map((user) => (
+              <li>{user.username}</li>
+            ))}
           </ul>
         </div>
         <div ref={chatMessagesRef} className="chat-messages">
-          {/* <div className="message">
-            <p className="meta">
-              Brad <span>9:12pm</span>
-            </p>
-            <p className="text">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Eligendi,
-              repudiandae.
-            </p>
-          </div> */}
           {messageReceived &&
             messageReceived?.map((msg, index) => (
               <div className="message" key={`${index}${msg}`}>
                 <p className="meta">
-                  {query.userName} <span>{msg.time}</span>
+                  {query.username} <span>{msg.time}</span>
                 </p>
                 <p className="text">{msg.text}</p>
               </div>

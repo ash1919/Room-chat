@@ -9,6 +9,12 @@ app.use(cors());
 
 const http = require("http");
 const formatMessage = require("./utils/messages");
+const {
+  userJoin,
+  getCurrentUser,
+  userLeave,
+  getRoomUsers,
+} = require("./utils/users");
 const server = http.createServer(app);
 const botName = "ChatCord Bot";
 
@@ -28,23 +34,49 @@ app.get("/", (req, res) => {
 
 io.on("connection", (socket) => {
   console.log("Connection done");
-  //welcome current users
-  socket.emit("message", formatMessage(botName, "Welcome to Chat Cord"));
 
-  //Broadcast when user connects
-  socket.broadcast.emit(
-    "message",
-    formatMessage(botName, "A User has joined the chat")
-  );
+  socket.on("joinRoom", ({ username, room }) => {
+    const user = userJoin(socket.id, username, room);
+
+    socket.join(user.room);
+    //welcome current users
+    socket.emit("message", formatMessage(botName, "Welcome to Chat Cord"));
+
+    //Broadcast when user connects
+    socket.broadcast
+      .to(user.room)
+      .emit(
+        "message",
+        formatMessage(botName, `A ${user.username} has joined the chat`)
+      );
+
+    //send users and room info
+    io.to(user.room).emit("room_users", {
+      room: user.room,
+      users: getRoomUsers(user.room),
+    });
+  });
 
   //listen client messages
   socket.on("send_message", (data) => {
-    socket.broadcast.emit("receive_message", formatMessage("USER", data));
+    const user = getCurrentUser(socket.id);
+
+    io.to(user.room).emit(
+      "receive_message",
+      formatMessage(user.username, data)
+    );
   });
 
   //client disconnects
   socket.on("disconnect", () => {
-    io.emit("message", formatMessage(botName, "A User has left the chat"));
+    const user = userLeave(socket.id);
+
+    if (user) {
+      io.to(user.room).emit(
+        "message",
+        formatMessage(botName, `A ${user.username} has left the chat`)
+      );
+    }
   });
 });
 
