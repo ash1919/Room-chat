@@ -21,7 +21,7 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    const socket = io("http://localhost:4000");
+    const socket = io("https://white-farmer-knixx.ineuron.app:4000");
     setSocket(socket);
 
     return () => {
