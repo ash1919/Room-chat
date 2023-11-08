@@ -64,7 +64,6 @@ const Chat = () => {
     });
   }, [socket]);
 
-  console.log(roomDetails);
   return (
     <div className="chat-container">
       <header className="chat-header">
@@ -77,13 +76,19 @@ const Chat = () => {
       </header>
       <main className="chat-main">
         <div className="chat-sidebar">
-          <h3>
-            <i className="fas fa-comments"></i> Room Name:
-          </h3>
+          <img
+            src="/chat.png"
+            alt=""
+            style={{ display: "flex", width: "40px" }}
+          />
+          <h3>Room Name:</h3>
           <h2 id="room-name">{roomDetails.room}</h2>
-          <h3>
-            <i className="fas fa-users"></i> Users
-          </h3>
+          <img
+            src="/users.png"
+            alt=""
+            style={{ display: "flex", width: "40px" }}
+          />
+          <h3>Users: </h3>
           <ul id="users">
             {roomDetails?.users?.map((user) => (
               <li key={user.id} style={{ textTransform: "capitalize" }}>
