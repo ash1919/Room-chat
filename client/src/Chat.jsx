@@ -86,7 +86,9 @@ const Chat = () => {
           </h3>
           <ul id="users">
             {roomDetails?.users?.map((user) => (
-              <li>{user.username}</li>
+              <li key={user.id} style={{ textTransform: "capitalize" }}>
+                {user.username}
+              </li>
             ))}
           </ul>
         </div>
