@@ -76,6 +76,11 @@ io.on("connection", (socket) => {
         "message",
         formatMessage(botName, `A ${user.username} has left the chat`)
       );
+      //send users and room info
+      io.to(user.room).emit("room_users", {
+        room: user.room,
+        users: getRoomUsers(user.room),
+      });
     }
   });
 });

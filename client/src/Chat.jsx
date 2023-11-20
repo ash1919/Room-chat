@@ -63,7 +63,8 @@ const Chat = () => {
       }, 0);
     });
   }, [socket]);
-
+  
+  console.log(roomDetails);
   return (
     <div className="chat-container">
       <header className="chat-header">
@@ -102,7 +103,7 @@ const Chat = () => {
             messageReceived?.map((msg, index) => (
               <div className="message" key={`${index}${msg}`}>
                 <p className="meta">
-                  {query.username} <span>{msg.time}</span>
+                  {msg.username} <span>{msg.time}</span>
                 </p>
                 <p className="text">{msg.text}</p>
               </div>
