@@ -1,7 +1,7 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Chat from "./Chat";
-import ChatRoomSelection from "./ChatRoomSelection";
+import Chat from "./component/Chat";
+import ChatRoomSelection from "./component/ChatRoomSelection";
 
 const App = () => {
   const router = createBrowserRouter([

@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import { useSearchParams } from "react-router-dom";
-
-// const socket = io("http://localhost:4000");
+import { IO_SERVER } from "../utils/env.constants";
 
 const Chat = () => {
   const [roomDetails, setRoomDetails] = useState({});
@@ -21,7 +20,7 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    const socket = io("https://white-farmer-knixx.ineuron.app:4000");
+    const socket = io(IO_SERVER);
     setSocket(socket);
 
     return () => {
@@ -63,7 +62,7 @@ const Chat = () => {
       }, 0);
     });
   }, [socket]);
-  
+
   console.log(roomDetails);
   return (
     <div className="chat-container">
