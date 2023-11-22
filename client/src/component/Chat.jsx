@@ -47,6 +47,7 @@ const Chat = () => {
       });
     });
     socket.on("message", (data) => {
+      console.log(data);
       setMessageReceived((prevMessages) => [...prevMessages, data]);
       setTimeout(() => {
         chatMessagesRef.current.scrollTop =
