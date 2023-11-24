@@ -1,13 +1,23 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import "../App.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 function ChatRoomSelection() {
   const navigate = useNavigate();
+  const { updateUser } = useContext(UserContext);
   const [formData, setFormData] = useState({
     username: "",
     room: "JavaScript",
   });
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === "/") {
+      sessionStorage.removeItem("data");
+      updateUser("");
+    }
+  }, []);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;

@@ -1,21 +1,23 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { UserContext } from "./UserContext";
 
 const UserContextProvider = ({ children }) => {
-  const [user, setUser] = useState({
-    id: "",
-    room: "",
-    userName: "",
-  });
-  
+  const [user, setUser] = useState(
+    JSON.parse(sessionStorage.getItem("data") || "[]")
+  );
 
   const userValue = useMemo(
     () => ({
       user,
-      setUser,
+      updateUser: (userDetails) => {
+        setUser(userDetails);
+      },
     }),
     [user]
   );
+  useEffect(() => {
+    sessionStorage.setItem("data", JSON.stringify(user));
+  }, [user]);
   return (
     <UserContext.Provider value={userValue}>{children}</UserContext.Provider>
   );

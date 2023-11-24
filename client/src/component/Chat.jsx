@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import { useSearchParams } from "react-router-dom";
 import { IO_SERVER } from "../utils/env.constants";
+import { UserContext } from "../context/UserContext";
 
 const Chat = () => {
   const [roomDetails, setRoomDetails] = useState({});
@@ -12,10 +13,12 @@ const Chat = () => {
   const chatMessagesRef = useRef();
   const chatInputRef = useRef();
   const [searchParams] = useSearchParams();
+  const { user, updateUser } = useContext(UserContext);
 
   const sendMessage = (event) => {
     event.preventDefault();
     socket.emit("send_message", message);
+
     setMessage("");
   };
 
@@ -47,7 +50,9 @@ const Chat = () => {
       });
     });
     socket.on("message", (data) => {
-      console.log(data);
+      if (data) {
+        updateUser((prevMessages) => [...prevMessages, data]);
+      }
       setMessageReceived((prevMessages) => [...prevMessages, data]);
       setTimeout(() => {
         chatMessagesRef.current.scrollTop =
@@ -56,6 +61,10 @@ const Chat = () => {
     });
 
     socket.on("receive_message", (data) => {
+      // console.log([...user, data]);
+      if (data) {
+        updateUser((prevMessages) => [...prevMessages, data]);
+      }
       setMessageReceived((prevMessages) => [...prevMessages, data]);
       setTimeout(() => {
         chatMessagesRef.current.scrollTop =
@@ -64,7 +73,9 @@ const Chat = () => {
     });
   }, [socket]);
 
-  console.log(roomDetails);
+  // console.log("context", user);
+  console.log("receive", user);
+
   return (
     <div className="chat-container">
       <header className="chat-header">
@@ -99,8 +110,8 @@ const Chat = () => {
           </ul>
         </div>
         <div ref={chatMessagesRef} className="chat-messages">
-          {messageReceived &&
-            messageReceived?.map((msg, index) => (
+          {user &&
+            user?.map((msg, index) => (
               <div className="message" key={`${index}${msg}`}>
                 <p className="meta">
                   {msg.username} <span>{msg.time}</span>
