@@ -49,6 +49,7 @@ const Chat = () => {
         users: users,
       });
     });
+    
     socket.on("message", (data) => {
       if (data) {
         updateUser((prevMessages) => [...prevMessages, data]);
